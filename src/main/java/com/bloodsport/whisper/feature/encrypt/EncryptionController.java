@@ -1,5 +1,6 @@
 package com.bloodsport.whisper.feature.encrypt;
 
+import com.bloodsport.whisper.core.annotation.ResultSkip;
 import com.bloodsport.whisper.core.annotation.SecurityParameter;
 import com.bloodsport.whisper.model.pojo.PublicKeyDTO;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,7 @@ public class EncryptionController {
     String publicKey;
 
     @SecurityParameter
+    @ResultSkip
     @GetMapping(value = "/fetchPublicKey")
     public PublicKeyDTO fetchPublicKey(){
         return new PublicKeyDTO(publicKey.replaceAll("\\\\", ""));
