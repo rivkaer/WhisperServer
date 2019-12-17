@@ -13,6 +13,9 @@ import java.util.Map;
  * <p>@PackageName:     com.bloodsport.whisper.example</p>
  * <b>
  * <p>@Description:     内存中简单时间的key - value数据库</p>
+ *
+ * 不要使用该类来完成存储公钥, 该类只是为了暂时完成业务而设定的
+ *
  * </b>
  * <p>@author:          lumo</p>
  * <p>@date:            2019/12/17</p>
