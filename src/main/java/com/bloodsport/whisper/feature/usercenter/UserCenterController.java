@@ -3,10 +3,11 @@ package com.bloodsport.whisper.feature.usercenter;
 import com.bloodsport.whisper.core.annotation.SecurityParameter;
 import com.bloodsport.whisper.example.KeyValueDatabase;
 import com.bloodsport.whisper.interf.TokenHelper;
-import com.bloodsport.whisper.model.UserTokenModel;
 import com.bloodsport.whisper.model.pojo.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>@ProjectName:     WhisperServer</p>
@@ -30,20 +31,15 @@ public class UserCenterController {
 
     @SecurityParameter
     @PostMapping(value = "/register")
-    public UserDTO register(@RequestBody UserDTO user){
+    public UserDTO register(@RequestBody UserDTO user, HttpServletResponse response){
         String token = tokenHelper.create("1", user.getUsername(), 1000 * 60 * 60 * 24 * 7);
         UserDTO userDTO = new UserDTO();
         userDTO.setToken(token);
         userDTO.setUsername(user.getUsername());
+        // 手动将token添加到response
+        response.addHeader("token", token);
+        // 将公钥插入到key-value数据库中
         keyValueDatabase.insert("1", user.getPublicKey());
-        return userDTO;
-    }
-
-    @SecurityParameter
-    @PostMapping(value = "/login")
-    public UserDTO login(@RequestBody UserDTO user){
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(user.getUsername());
         return userDTO;
     }
 }

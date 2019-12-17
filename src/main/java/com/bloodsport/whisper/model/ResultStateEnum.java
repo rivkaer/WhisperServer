@@ -15,6 +15,9 @@ public enum ResultStateEnum {
     FAILURE(500, "服务异常,请联系管理员"),
     SUCCESSFUL(200, "successful"),
     LOGIN_USER_AUTH_FAILURE(403, "请重新登陆"),
+    NOT_ENCRYPT_REQUEST(411, "未加密的请求"),
+    ENCRYPT_RESPONSE_FAILURE(412, "加密响应失败"),
+    DECRYPT_REQUEST_FAILURE(413, "解密请求失败"),
     LOGIN_USER_NOT_FOUND(501, "找不到用户"),
     LOGIN_INFO_MISMATCH(502, "用户名密码不匹配");
 

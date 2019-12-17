@@ -32,8 +32,6 @@ public class CustomException extends RuntimeException {
         this.code = code;
     }
 
-
-
     public int getCode() {
         return code;
     }

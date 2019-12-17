@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,9 +48,9 @@ public class GlobalEncryptionWrapper implements ResponseBodyAdvice<Object> {
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> aClass) {
         boolean encrypt = false;
         Method method = returnType.getMethod();
-        if (method != null && method.isAnnotationPresent(SecurityParameter.class)){
+        if (method != null && method.isAnnotationPresent(SecurityParameter.class)) {
             boolean methodPresent = returnType.getMethod().isAnnotationPresent(SecurityParameter.class);
-            if(methodPresent){
+            if (methodPresent) {
                 //方法上标注的是否需要加密
                 encrypt = returnType.getMethod().getAnnotation(SecurityParameter.class).outEncode();
             }
@@ -63,40 +62,45 @@ public class GlobalEncryptionWrapper implements ResponseBodyAdvice<Object> {
     public Object beforeBodyWrite(Object obj, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         HttpMethod method = serverHttpRequest.getMethod();
         String body = JsonSerializer.getSerializer().toJson(obj);
-        if (method == HttpMethod.GET){
+        if (method == HttpMethod.GET) {
             return body;
         }
-        List<String> listToken = serverHttpRequest.getHeaders().getOrEmpty("token");
+        List<String> listResponseToken = serverHttpResponse.getHeaders().getOrEmpty("token");
+        List<String> listRequestToken = serverHttpRequest.getHeaders().getOrEmpty("token");
         String token = null;
-        if (listToken.isEmpty() || StringUtils.isEmpty((token = listToken.get(0))) || !tokenHelper.validate(token)){
+        if ((listRequestToken.isEmpty() && listResponseToken.isEmpty())
+                || (StringUtils.isEmpty((token = (listRequestToken.isEmpty() ? "" : listRequestToken.get(0)))) && StringUtils.isEmpty((token = (listResponseToken.isEmpty()? "": listResponseToken.get(0))))
+                || !tokenHelper.validate(token))) {
             serverHttpResponse.getHeaders().add("blend", String.valueOf(0));
         }
         try {
             String key = generalRandomKey(1 << 4);
             body = encryptResponseMessage(body, key);
-            if (!StringUtils.isEmpty(token)){
+            if (!StringUtils.isEmpty(token)) {
                 UserTokenModel userTokenModel = tokenHelper.analyse(token);
                 String publicKey = keyValueDatabase.find(userTokenModel.getUserId());
                 key = EncryptUtils.encryptForRSA(key, publicKey);
             }
             serverHttpResponse.getHeaders().add("encrypt-key", key);
             return body;
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
-            throw new CustomException();
+            throw new CustomException(ResultStateEnum.ENCRYPT_RESPONSE_FAILURE);
         }
     }
 
     /**
      * 对信息进行加密
+     *
      * @param message 消息加密
      */
-    private String encryptResponseMessage(String message, String aesKey) throws Exception{
+    private String encryptResponseMessage(String message, String aesKey) throws Exception {
         return EncryptUtils.encryptForAES(message, aesKey);
     }
 
     /**
      * 随机生成指定位数的key
+     *
      * @param len 长度
      * @return 随机key字符串
      */
