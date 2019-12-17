@@ -61,10 +61,10 @@ public class GlobalEncryptionWrapper implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object obj, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         HttpMethod method = serverHttpRequest.getMethod();
-        String body = JsonSerializer.getSerializer().toJson(obj);
         if (method == HttpMethod.GET) {
-            return body;
+            return obj;
         }
+        String body = JsonSerializer.getSerializer().toJson(obj);
         List<String> listResponseToken = serverHttpResponse.getHeaders().getOrEmpty("token");
         List<String> listRequestToken = serverHttpRequest.getHeaders().getOrEmpty("token");
         String token = null;

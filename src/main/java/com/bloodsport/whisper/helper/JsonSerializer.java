@@ -21,6 +21,7 @@ public class JsonSerializer {
     {
         mGson = new GsonBuilder()
                 .setPrettyPrinting()
+                .disableHtmlEscaping()
                 .create();
     }
 

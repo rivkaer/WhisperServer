@@ -36,7 +36,7 @@ public class GsonSupportHandler extends WebMvcConfigurationSupport {
         });
         // 在对数据加密时会进行序列化后进行加密
         // 增加gson转换器
-        // converters.add(new GsonHttpMessageConverter());
+        converters.add(new GsonHttpMessageConverter());
         super.extendMessageConverters(converters);
     }
 }
